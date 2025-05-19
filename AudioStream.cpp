@@ -89,3 +89,32 @@ int AudioStream::getNumChannels() const {
      */
     return numChannels;
 }
+
+void AudioStream::readHandler(tsQueue<ringBuffer*>& InQueue, const atomic_flag &running) {
+    /*
+     * This function is the handler used for reading audio from the input device.
+     * It is called in a separate thread.
+     * The function continuously reads audio from the input device and pushes it into the input queue.
+     * When the flag is set, the function stops reading audio and exits the thread.
+     */
+
+    while (running.test()) {
+        ringBuffer *buffer = readAudio(); //read audio from the input device and write it to a new ring buffer
+        InQueue.queue_push(buffer); //push the buffer into the input queue
+    }
+
+}
+
+void AudioStream::writeHandler(tsQueue<ringBuffer*>& OutQueue, atomic_flag &running) {
+    /*
+     * This function is the handler used for writing audio to the output device.
+     * It is called in a separate thread.
+     * The function continuously pops audio from the output queue and writes it to the output device.
+     * When the flag is set, the function stops writing audio and exits the thread.
+     */
+    while (running.test()) {
+        ringBuffer *buffer = OutQueue.dequeue(); //pop the buffer from the output queue
+        writeAudio(buffer->buffer); //write the audio to the output device
+        delete buffer; //delete the buffer
+    }
+}
