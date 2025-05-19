@@ -10,9 +10,12 @@
 #define FRAMES_PER_BUFFER 512
 #define FRAMES_PER_BLOCK 512
 
+#include <atomic>
+
 #include "portaudio.h"
 #include <stdio.h>
 #include "ringBuffer.h"
+#include "tsQueue.h"
 
 class AudioStream {
     private:
@@ -28,6 +31,8 @@ class AudioStream {
     ringBuffer* readAudio();
     void writeAudio(float* buffer);
     int getNumChannels() const;
+    void readHandler(tsQueue<ringBuffer*>& InQueue, const atomic_flag &running);
+    void writeHandler(tsQueue<ringBuffer*>& OutQueue, atomic_flag &running);
 };
 
 

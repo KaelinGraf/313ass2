@@ -11,7 +11,8 @@ add_executable(313ass2 main.cpp
         AudioStream.cpp
         AudioStream.h
         ringBuffer.cpp
-        ringBuffer.h)
+        ringBuffer.h
+        tsQueue.h)
 
 
 
